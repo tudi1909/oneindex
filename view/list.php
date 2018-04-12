@@ -72,42 +72,43 @@ $root_path = get_absolute_path(dirname($_SERVER['SCRIPT_NAME'])) . config('root_
 </div>
 </body>
 <script>
-    $(document).ready(function () {
+    $(function () {
         var str = document.getElementById('file').innerText;
-        if (str.indexOf('.ass') >=0){
+        if (str.indexOf('.ass') >=0) {
             $("span#so").addClass('fa-file-text');
         }
-        else if (str.indexOf('.apk') >=0){
+        else if (str.indexOf('.apk') >= 0) {
             $('span#so').addClass('fa-android');
         }
-        else if (str.indexOf('.dmg') >=0){
+        else if (str.indexOf('.dmg') >= 0) {
             $('span#so').addClass('fa-apple');
         }
-        else if (str.indexOf('.exe') >=0){
+        else if (str.indexOf('.exe') >= 0) {
             $('span#so').addClass('fa-windows');
         }
-        else if (str.indexOf('.iso') >=0){
+        else if (str.indexOf('.iso') >= 0) {
             $('span#so').addClass('fa-spin fa-refresh');
         }
-        else if (str.indexOf('.pdf') >=0){
+        else if (str.indexOf('.pdf') >= 0) {
             $('span#so').addClass('fa-pdf-o');
         }
-        else if (str.indexOf('.rar') >=0){
+        else if (str.indexOf('.rar') >= 0) {
             $('span#so').addClass('fa-file-zip-o');
         }
-        else if (str.indexOf('.rpm') >=0){
+        else if (str.indexOf('.rpm') >= 0) {
             $('span#so').addClass('fa-file-zip-o');
         }
-        else if (str.indexOf('.sh') >=0){
+        else if (str.indexOf('.sh') >= 0) {
             $('span#so').addClass('fa-file-text');
         }
-        else if (str.indexOf('.txt') >=0){
+        else if (str.indexOf('.txt') >= 0) {
             $('span#so').addClass('fa-file-text');
         }
-        else if (str.indexOf('.zip') >=0){
+        else if (str.indexOf('.zip') >= 0) {
             $('span#so').addClass('fa-file-zip-o');
         }
-        else (str.indexOf('.7z') >=0){
+        else if(str.indexOf('.7z') >= 0)
+        {
             $('span#so').addClass('fa-file-zip-o');
         }
     })
