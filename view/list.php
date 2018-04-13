@@ -87,7 +87,7 @@ $root_path = get_absolute_path(dirname($_SERVER['SCRIPT_NAME'])) . config('root_
             $('span#so').addClass('fa-windows');
         }
         else if (str.indexOf('.iso') >= 0) {
-            $('span#so').addClass('fa-spin fa-refresh');
+            $('span#so').addClass('fa-archive');
         }
         else if (str.indexOf('.pdf') >= 0) {
             $('span#so').addClass('fa-pdf-o');
