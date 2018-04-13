@@ -10,7 +10,7 @@ $root_path = get_absolute_path(dirname($_SERVER['SCRIPT_NAME'])) . config('root_
     <title>下载站&nbsp;<?php echo urldecode($path); ?></title>
     <link href="view/css/bootstrap.min.css" rel="stylesheet">
     <link href="view/css/font-awesome.min.css" rel="stylesheet">
-    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
     <style type="text/css">
         .conent {
             font-size: 16px;
@@ -26,7 +26,7 @@ $root_path = get_absolute_path(dirname($_SERVER['SCRIPT_NAME'])) . config('root_
         <nav class="navbar navbar-default">
             <div class="container-fluid">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="#">逗比极客</a>
+                    <a class="navbar-brand" href="#">逗bi极客</a>
                 </div>
             </div>
         </nav>
