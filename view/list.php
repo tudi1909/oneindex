@@ -10,7 +10,7 @@ $root_path = get_absolute_path(dirname($_SERVER['SCRIPT_NAME'])) . config('root_
     <title>下载站&nbsp;<?php echo urldecode($path); ?></title>
     <link href="view/css/bootstrap.min.css" rel="stylesheet">
     <link href="view/css/font-awesome.min.css" rel="stylesheet">
-    <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <script src="//view/js/jquery/3.3.1/jquery-3.3.1.min.js"></script>
     <style type="text/css">
         .conent {
             font-size: 16px;
