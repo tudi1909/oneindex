@@ -10,7 +10,7 @@ $root_path = get_absolute_path(dirname($_SERVER['SCRIPT_NAME'])) . config('root_
     <title>下载站&nbsp;<?php echo urldecode($path); ?></title>
     <link href="view/css/bootstrap.min.css" rel="stylesheet">
     <link href="view/css/font-awesome.min.css" rel="stylesheet">
-    <script src="//view/js/jquery/3.3.1/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
     <style type="text/css">
         .conent {
             font-size: 16px;
@@ -26,7 +26,7 @@ $root_path = get_absolute_path(dirname($_SERVER['SCRIPT_NAME'])) . config('root_
         <nav class="navbar navbar-default">
             <div class="container-fluid">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="#">逗bi极客</a>
+                    <a class="navbar-brand" href="#">逗比极客</a>
                 </div>
             </div>
         </nav>
@@ -72,44 +72,29 @@ $root_path = get_absolute_path(dirname($_SERVER['SCRIPT_NAME'])) . config('root_
 </div>
 </body>
 <script>
-    $(function () {
+    $(document).ready(function () {
         var str = document.getElementById('file').innerText;
-        if (str.indexOf('.ass') >=0) {
-            $("span#so").addClass('fa-file-text');
+        var suffix = {
+            '.ass': 'fa-file-text',
+            '.apk': 'fa-android',
+            '.dmg': 'fa-apple',
+            '.exe': 'fa-windows',
+            '.md5': 'fa-file-text',
+            '.iso': 'fa-spin fa-refresh',
+            '.pdf': 'fa-pdf-o',
+            '.rar': 'fa-file-zip-o',
+            '.rpm': 'fa-file-zip-o',
+            '.sh': 'fa-file-text',
+            '.txt': 'fa-file-text',
+            '.zip': 'fa-file-zip-o',
+            '.7z': 'fa-file-zip-o',
         }
-        else if (str.indexOf('.apk') >= 0) {
-            $('span#so').addClass('fa-android');
+        var fileSuffix = str.substr(-4);
+        if (fileSuffix in suffix) {
+            $('span#so').addClass(suffix[fileSuffix]);
         }
-        else if (str.indexOf('.dmg') >= 0) {
-            $('span#so').addClass('fa-apple');
-        }
-        else if (str.indexOf('.exe') >= 0) {
-            $('span#so').addClass('fa-windows');
-        }
-        else if (str.indexOf('.iso') >= 0) {
-            $('span#so').addClass('fa-archive');
-        }
-        else if (str.indexOf('.pdf') >= 0) {
-            $('span#so').addClass('fa-pdf-o');
-        }
-        else if (str.indexOf('.rar') >= 0) {
-            $('span#so').addClass('fa-file-zip-o');
-        }
-        else if (str.indexOf('.rpm') >= 0) {
-            $('span#so').addClass('fa-file-zip-o');
-        }
-        else if (str.indexOf('.sh') >= 0) {
+        else {
             $('span#so').addClass('fa-file-text');
-        }
-        else if (str.indexOf('.txt') >= 0) {
-            $('span#so').addClass('fa-file-text');
-        }
-        else if (str.indexOf('.zip') >= 0) {
-            $('span#so').addClass('fa-file-zip-o');
-        }
-        else if(str.indexOf('.7z') >= 0)
-        {
-            $('span#so').addClass('fa-file-zip-o');
         }
     })
 </script>
