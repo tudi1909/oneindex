@@ -12,8 +12,8 @@ function file_ico($item)
 
 function icon_name($items)
 {
-    $list = array('ass', 'apk', 'dmg', 'exe', 'md5', 'iso', 'pdf', 'rar', 'rpm', 'sh', 'txt', 'zip', '7z');
-    $list_key = array('ass' => 'fa-file-text', 'apk' => 'fa-android', 'dmg' => 'fa-apple', 'exe' => 'fa-windows', 'md5' => 'fa-file-text', 'iso' => 'fa-spin fa-refresh', 'pdf' => 'fa-pdf-o', 'rar' => 'fa-file-zip-o', 'rpm' => 'fa-file-zip-o', 'sh' => 'fa-file-text', 'txt' => 'fa-file-text', 'zip' => 'fa-file-zip-o', '7z' => 'fa-file-zip-o');
+    $list = array('ass', 'apk', 'dmg', 'exe', 'iso', 'pdf', 'rar', 'rpm', 'sh', 'txt', 'zip', '7z');
+    $list_key = array('ass' => 'fa fa-file-text"', 'apk' => 'fa fa-android"', 'dmg' => 'fa fa-apple"', 'exe' => 'fa fa-windows"', 'iso' => 'fa fa-spin fa-refresh"', 'pdf' => 'fa fa-pdf-o"', 'rar' => 'fa fa-file-zip-o"', 'rpm' => 'fa fa-file-zip-o"', 'sh' => 'fa fa-file-text"', 'txt' => 'fa fa-file-text"', 'zip' => 'fa fa-file-zip-o"', '7z' => 'fa fa-file-zip-o"');
     $isin = in_array(cut_str($items, '.', -1), $list);
     if ($isin) {
         return $list_key[cut_str($items, '.', -1)];
@@ -94,9 +94,17 @@ function cut_str($str, $sign, $number)
                             <a href="<?php echo get_absolute_path($root . $path) . urlencode($item['name']); ?>"
                                target="_blank">
                                 <div class="mdui-col-xs-12 mdui-col-sm-7 mdui-text-truncate">
-                                    <i class="mdui-icon material-icons"><?php
-                                        $sullty = cut_str($item['name'], '.', -1);
-                                        echo icon_name($sullty)?></i>
+                                    <i <?php
+                                    $suffix = cut_str($item['name'], '.', -1);
+                                    if (icon_name($suffix) != 'insert_drive_file')
+                                        echo 'class="mdui-icon material-icons ' . icon_name($suffix);
+                                    else
+                                        echo 'class="mdui-icon material-icons"';
+                                    ?>>
+                                    <?php
+                                    $suffix = cut_str($item['name'], '.', -1);
+                                    if (icon_name($suffix) === 'insert_drive_file')
+                                        echo 'insert_drive_file' ?></i>
                                     <?php e($item['name']); ?>
                                 </div>
                                 <div class="mdui-col-sm-3 mdui-text-right"><?php echo date("Y-m-d H:i:s", $item['lastModifiedDateTime']); ?></div>

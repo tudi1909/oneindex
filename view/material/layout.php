@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/>
 	<title><?php e($title);?></title>
 	<link rel="stylesheet" href="//cdn.bootcss.com/mdui/0.4.1/css/mdui.min.css">
-    <link href="https://cdn.bootcss.com/fontawesome-iconpicker/3.0.0/css/fontawesome-iconpicker.min.css" rel="stylesheet">
+    <link href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 	<script src="//cdn.bootcss.com/mdui/0.4.1/js/mdui.min.js"></script>
 	<style>
 		.mdui-appbar .mdui-toolbar{
