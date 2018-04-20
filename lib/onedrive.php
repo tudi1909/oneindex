@@ -96,6 +96,7 @@
 					'thumbnails'=>$item['thumbnails'],
 					'video'=>$item['video'],
 					'image'=>$item['image'],
+					'type'=>$item['file']['mimeType'],
 					'folder'=>empty($item['folder'])?false:true
 				);
 			}
@@ -126,7 +127,7 @@
 			return false;
 		}
 
-		//文件上传函数
+		//鏂囦欢涓婁紶鍑芥暟
 		static function upload($path,$content){
 			$token = self::access_token();
 			fetch::$headers = "Authorization: bearer {$token}";
@@ -193,7 +194,7 @@
 		}
 
 		static function file_content($file, $offset, $length){
-			$handler = fopen($file, "rb") OR die('获取文件内容失败');
+			$handler = fopen($file, "rb") OR die('鑾峰彇鏂囦欢鍐呭澶辫触');
 			fseek($handler, $offset);
 			
 			return fread($handler, $length);
