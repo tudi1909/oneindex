@@ -4,7 +4,6 @@
 		static $client_secret;
 		static $redirect_uri;
 		static $app_url;
-
 		static function authorize_url(){
 			$client_id = self::$client_id;
 			$redirect_uri = self::$redirect_uri;
@@ -17,7 +16,6 @@
 			$client_id = self::$client_id;
 			$client_secret = self::$client_secret;
 			$redirect_uri = self::$redirect_uri;
-
 			$url = "https://login.microsoftonline.com/common/oauth2/token";
 			$post_data = "client_id={$client_id}&redirect_uri={$redirect_uri}&client_secret={$client_secret}&code={$code}&grant_type=authorization_code&resource={$resource_id}";
 			fetch::$headers = "Content-Type: application/x-www-form-urlencoded";
@@ -25,19 +23,15 @@
 			$data = json_decode($resp->content, true);
 			return $data;
 		}
-
 		static function get_app_url($token){
 			fetch::$headers = "Authorization: bearer {$token}";
-
 			$resp = fetch::get("https://api.office.com/discovery/v2.0/me/services");
-
 			$data = json_decode($resp->content, true);
 			if(!empty($data['value'])){
 				return $data['value'][0]['serviceResourceId'];
 			}
 			return ;
 		}
-
 		static function access_token(){
 			$token = config('@token');
 			if($token['expires_on'] > time()+600){
@@ -65,12 +59,10 @@
 			$data = json_decode($resp->content, true);
 			return $data;
 		}
-
 		static function human_filesize($size, $precision = 1) {
 			for($i = 0; ($size / 1024) > 1; $i++, $size /= 1024) {}
 			return round($size, $precision).['B','kB','MB','GB','TB','PB','EB','ZB','YB'][$i];
 		}
-
 		static function dir($path="/"){
 			$token = self::access_token();
 			fetch::$headers = "Authorization: bearer {$token}";
@@ -78,43 +70,38 @@
 				$path = ':'.rtrim($path, '/').':/';
 			}
 			$url = self::$app_url."_api/v2.0/me/drive/root".$path."children?expand=thumbnails";
-			$resp = fetch::get($url);
+			$items = array();
+			self::dir_next_page($url, $items);
+			return $items;
+		}
+		static function dir_next_page($nextlink, &$items){
+			$resp = fetch::get($nextlink);
 			$data = json_decode($resp->content, true);
-			if(!empty($data['@odata.nextLink'])){
-				self::dir_next_page($data['@odata.nextLink'], $data);
-			}
 			if(empty($data)){
-				return false;
+				return self::dir_next_page($nextlink, $items);
 			}
+			
 			foreach((array)$data['value'] as $item){
-				$return[$item['name']] = array(
+				$items[$item['name']] = array(
 					'name'=>$item['name'],
 					'size'=>self::human_filesize($item['size']),
 					'createdDateTime'=>strtotime($item['createdDateTime']),
 					'lastModifiedDateTime'=>strtotime($item['lastModifiedDateTime']),
 					'downloadUrl'=>$item['@content.downloadUrl'],
-					'thumbnails'=>$item['thumbnails'],
 					'video'=>$item['video'],
 					'image'=>$item['image'],
-					'type'=>$item['file']['mimeType'],
 					'folder'=>empty($item['folder'])?false:true
 				);
+				if(!empty($item['thumbnails'])){
+					$url = $item['thumbnails'][0]['large']['url'];
+					list($url, $tmp) = explode("&width=",$url);
+					$items[$item['name']]['thumb'] = $url;
+				}
 			}
-			return (array)$return;
-		}
-
-		static function dir_next_page($nextlink, &$data){
-			$resp = fetch::get($nextlink);
-			$next_data = json_decode($resp->content, true);
-			if(empty($next_data )){
-				return self::dir_next_page($nextlink, $data);
-			}
-			$data['value'] = array_merge($data['value'],$next_data['value']);
-			if(!empty($next_data['@odata.nextLink'])){
-				self::dir_next_page($next_data['@odata.nextLink'], $data);
+			if(!empty($data['@odata.nextLink'])){
+				return self::dir_next_page($data['@odata.nextLink'], $items);
 			}
 		}
-
 		static function thumbnails($path){
 			$token = self::access_token();
 			fetch::$headers = "Authorization: bearer {$token}";
@@ -126,7 +113,6 @@
 			}
 			return false;
 		}
-
 		//文件上传函数
 		static function upload($path,$content){
 			$token = self::access_token();
@@ -140,7 +126,6 @@
 		static function create_upload_session($path){
 			$path = self::urlencode($path);
 			$token = self::access_token();
-
 			fetch::$headers = "Authorization: bearer {$token}".PHP_EOL."Content-Type: application/json".PHP_EOL;
 			$url = self::$app_url."_api/v2.0/me/drive/root:/".$path.":/createUploadSession";
 			$post_data['item'] = array(
@@ -155,14 +140,12 @@
 			}
 			return $data;
 		}
-
 		static function upload_session($url, $file, $offset, $length=10240){
 			$token = self::access_token();
 			$file_size = self::_filesize($file);
 			$content_length = (($offset+$length)>$file_size)?($file_size-$offset):$length;
 			$end = $offset+$content_length-1;
 			$post_data = self::file_content($file, $offset, $length);
-
 			$request['url'] = $url;
 			$request['headers'] = "Authorization: bearer {$token}".PHP_EOL;
 			$request['headers'] .= "Content-Length: {$content_length}".PHP_EOL;
@@ -172,7 +155,6 @@
 			$data = json_decode($resp->content, true);
 			return $data;
 		}
-
 		static function upload_session_status($url){
 			$token = self::access_token();
 			fetch::$headers = "Authorization: bearer {$token}".PHP_EOL."Content-Type: application/json".PHP_EOL;
@@ -183,7 +165,6 @@
 			}
 			return $data;
 		}
-
 		static function delete_upload_session($url){
 			$token = self::access_token();
 			fetch::$headers = "Authorization: bearer {$token}".PHP_EOL."Content-Type: application/json".PHP_EOL;
@@ -192,14 +173,12 @@
 			var_dump($resp);
 			return $data;
 		}
-
 		static function file_content($file, $offset, $length){
 			$handler = fopen($file, "rb") OR die('获取文件内容失败');
 			fseek($handler, $offset);
 			
 			return fread($handler, $length);
 		}
-
 		static function urlencode($path){
 			$paths = explode('/', $path);
 				foreach($paths as $k=>$v){
