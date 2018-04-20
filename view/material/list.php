@@ -2,13 +2,19 @@
 <?php
 function file_ico($item)
 {
-    if (!empty($item['image'])) {
-        return "image";
-    }
-    if (!empty($item['video'])) {
-        return "ondemand_video";
-    }
+  $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
+  if(in_array($ext,['bmp','jpg','jpeg','png','gif'])){
+  	return "image";
+  }
+  if(in_array($ext,['mp4','mkv'])){
+  	return "ondemand_video";
+  }
+  if(in_array($ext,['ogg','mp3','wav'])){
+  	return "audiotrack";
+  }
+  return "insert_drive_file";
 }
+
 
 function icon_name($items)
 {
