@@ -77,7 +77,7 @@
 			if($path != '/'){
 				$path = ':'.rtrim($path, '/').':/';
 			}
-			$url = self::$app_url."_api/v2.0/me/drive/root".$path."children";
+			$url = self::$app_url."_api/v2.0/me/drive/root".$path."children?expand=thumbnails";
 			$resp = fetch::get($url);
 			$data = json_decode($resp->content, true);
 			if(!empty($data['@odata.nextLink'])){
@@ -93,6 +93,9 @@
 					'createdDateTime'=>strtotime($item['createdDateTime']),
 					'lastModifiedDateTime'=>strtotime($item['lastModifiedDateTime']),
 					'downloadUrl'=>$item['@content.downloadUrl'],
+					'thumbnails'=>$item['thumbnails'],
+					'video'=>$item['video'],
+					'image'=>$item['image'],
 					'folder'=>empty($item['folder'])?false:true
 				);
 			}
@@ -102,6 +105,9 @@
 		static function dir_next_page($nextlink, &$data){
 			$resp = fetch::get($nextlink);
 			$next_data = json_decode($resp->content, true);
+			if(empty($next_data )){
+				return self::dir_next_page($nextlink, $data);
+			}
 			$data['value'] = array_merge($data['value'],$next_data['value']);
 			if(!empty($next_data['@odata.nextLink'])){
 				self::dir_next_page($next_data['@odata.nextLink'], $data);
@@ -129,21 +135,29 @@
 			$data = json_decode($resp->content, true);
 			return @$data['@content.downloadUrl'];
 		}
-
+		
 		static function create_upload_session($path){
+			$path = self::urlencode($path);
 			$token = self::access_token();
-			fetch::$headers = "Authorization: bearer {$token}\r\nContent-Type: application/json";
+
+			fetch::$headers = "Authorization: bearer {$token}".PHP_EOL."Content-Type: application/json".PHP_EOL;
 			$url = self::$app_url."_api/v2.0/me/drive/root:/".$path.":/createUploadSession";
-			$post_data = '{"item": {"@microsoft.graph.conflictBehavior": "rename","name": "'.$path.'"}}';
+			$post_data['item'] = array(
+				'@microsoft.graph.conflictBehavior'=>'rename'
+			);
+			$post_data = json_encode($post_data);
+			
 			$resp = fetch::post($url,$post_data);
 			$data = json_decode($resp->content, true);
-			return $data['uploadUrl'];
+			if($resp->http_code == 409){
+				return false;
+			}
+			return $data;
 		}
 
-		static function upload_session($url, $file, $offset, $length){
+		static function upload_session($url, $file, $offset, $length=10240){
 			$token = self::access_token();
-			
-			$file_size = filesize($file);
+			$file_size = self::_filesize($file);
 			$content_length = (($offset+$length)>$file_size)?($file_size-$offset):$length;
 			$end = $offset+$content_length-1;
 			$post_data = self::file_content($file, $offset, $length);
@@ -153,7 +167,6 @@
 			$request['headers'] .= "Content-Length: {$content_length}".PHP_EOL;
 			$request['headers'] .= "Content-Range: bytes {$offset}-{$end}/{$file_size}";
 			$request['post_data'] = $post_data;
-
 			$resp = fetch::put($request);
 			$data = json_decode($resp->content, true);
 			return $data;
@@ -161,15 +174,69 @@
 
 		static function upload_session_status($url){
 			$token = self::access_token();
-			fetch::$headers = "Authorization: bearer {$token}\r\nContent-Type: application/json";
+			fetch::$headers = "Authorization: bearer {$token}".PHP_EOL."Content-Type: application/json".PHP_EOL;
 			$resp = fetch::get($url);
 			$data = json_decode($resp->content, true);
+			if($resp->http_code == 404){
+				return false;
+			}
+			return $data;
+		}
+
+		static function delete_upload_session($url){
+			$token = self::access_token();
+			fetch::$headers = "Authorization: bearer {$token}".PHP_EOL."Content-Type: application/json".PHP_EOL;
+			$resp = fetch::delete($url);
+			$data = json_decode($resp->content, true);
+			var_dump($resp);
 			return $data;
 		}
 
 		static function file_content($file, $offset, $length){
-			$handler = fopen($file, "r");
+			$handler = fopen($file, "rb") OR die('获取文件内容失败');
 			fseek($handler, $offset);
+			
 			return fread($handler, $length);
+		}
+
+		static function urlencode($path){
+			$paths = explode('/', $path);
+				foreach($paths as $k=>$v){
+					$paths[$k] = rawurlencode($v);
+				}
+				return join('/',$paths);
+			}
+				static function _filesize($path){
+		    if (!file_exists($path))
+		        return false;
+		    $size = filesize($path);
+		    
+		    if (!($file = fopen($path, 'rb')))
+		        return false;
+		    
+		    if ($size >= 0){//Check if it really is a small file (< 2 GB)
+		        if (fseek($file, 0, SEEK_END) === 0){//It really is a small file
+		            fclose($file);
+		            return $size;
+		        }
+		    }
+		    
+		    //Quickly jump the first 2 GB with fseek. After that fseek is not working on 32 bit php (it uses int internally)
+		    $size = PHP_INT_MAX - 1;
+		    if (fseek($file, PHP_INT_MAX - 1) !== 0){
+		        fclose($file);
+		        return false;
+		    }
+		    
+		    $length = 1024 * 1024;
+		    while (!feof($file)){//Read the file until end
+		        $read = fread($file, $length);
+		        $size = bcadd($size, $length);
+		    }
+		    $size = bcsub($size, $length);
+		    $size = bcadd($size, strlen($read));
+		    
+		    fclose($file);
+		    return $size;
 		}
 	}
