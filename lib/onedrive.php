@@ -70,36 +70,38 @@
 				$path = ':'.rtrim($path, '/').':/';
 			}
 			$url = self::$app_url."_api/v2.0/me/drive/root".$path."children?expand=thumbnails";
-			$items = array();
-			self::dir_next_page($url, $items);
-			return $items;
-		}
-		static function dir_next_page($nextlink, &$items){
-			$resp = fetch::get($nextlink);
+			$resp = fetch::get($url);
 			$data = json_decode($resp->content, true);
-			if(empty($data)){
-				return self::dir_next_page($nextlink, $items);
+			if(!empty($data['@odata.nextLink'])){
+				self::dir_next_page($data['@odata.nextLink'], $data);
 			}
-			
+			if(empty($data)){
+				return false;
+			}
 			foreach((array)$data['value'] as $item){
-				$items[$item['name']] = array(
+				$return[$item['name']] = array(
 					'name'=>$item['name'],
 					'size'=>self::human_filesize($item['size']),
 					'createdDateTime'=>strtotime($item['createdDateTime']),
 					'lastModifiedDateTime'=>strtotime($item['lastModifiedDateTime']),
 					'downloadUrl'=>$item['@content.downloadUrl'],
+					'thumbnails'=>$item['thumbnails'],
 					'video'=>$item['video'],
 					'image'=>$item['image'],
 					'folder'=>empty($item['folder'])?false:true
 				);
-				if(!empty($item['thumbnails'])){
-					$url = $item['thumbnails'][0]['large']['url'];
-					list($url, $tmp) = explode("&width=",$url);
-					$items[$item['name']]['thumb'] = $url;
-				}
 			}
-			if(!empty($data['@odata.nextLink'])){
-				return self::dir_next_page($data['@odata.nextLink'], $items);
+			return (array)$return;
+		}
+		static function dir_next_page($nextlink, &$data){
+			$resp = fetch::get($nextlink);
+			$next_data = json_decode($resp->content, true);
+			if(empty($next_data )){
+				return self::dir_next_page($nextlink, $data);
+			}
+			$data['value'] = array_merge($data['value'],$next_data['value']);
+			if(!empty($next_data['@odata.nextLink'])){
+				self::dir_next_page($next_data['@odata.nextLink'], $data);
 			}
 		}
 		static function thumbnails($path){
